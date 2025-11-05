@@ -1,6 +1,6 @@
 # Configuring Database Watcher SQL Targets using Bicep
 
-This repository contains a parameterized Bicep template for deploying **Azure Database Watcher** with support for monitoring **Azure SQL Database** and **SQL Managed Instance** targets. The template leverages existing resource references to simplify configuration and supports multiple authentication methods including SQL Authentication, Azure AD, and Managed Identity.
+This repository contains a parameterized Bicep template for deploying **Azure Database Watcher** with support for monitoring **Azure SQL Database** and **SQL Managed Instance** targets.
 
 ## 📋 What's Included
 
