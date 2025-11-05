@@ -4,8 +4,8 @@ This repository contains a parameterized Bicep template for deploying **Azure Da
 
 ## 📋 What's Included
 
-- **Bicep Template** (`dbwatcher-parametrized.bicep`) - Infrastructure as Code for Database Watcher
-- **Parameters File** (`dbwatcher-parametrized.parameters.json`) - Configuration values
+- **Bicep Template** (`dbwatcher.bicep`) - Infrastructure as Code for Database Watcher
+- **Parameters File** (`dbwatcher.parameters.json`) - Configuration values
 - **PowerShell Deployment Script** (`deploy-dbwatcher.ps1`) - Automated deployment with validation
 
 ## 📦 Prerequisites
@@ -423,7 +423,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 👥 Authors
 
 - **Marcelo Fonseca**
-- **Sam Mesel**
+- **[Sam Mesel](https://github.com/sammesel)**
 
 ## 🙏 Acknowledgments
 
