@@ -109,16 +109,8 @@ az deployment group create \
    $watcherPrincipalId = (Get-AzResourceGroupDeployment -ResourceGroupName "rg-database-watcher" -Name "latest").Outputs.watcherPrincipalId.Value
    ```
 
-2. Connect to your SQL Database and create a user for the Database Watcher:
-   ```sql
-   -- Connect as Azure AD admin
-   CREATE LOGIN [my-database-watcher] FROM EXTERNAL PROVIDER;
-   
-   -- Grant necessary permissions
-   ALTER SERVER ROLE ##MS_ServerPerformanceStateReader## ADD MEMBER [my-database-watcher];
-   ALTER SERVER ROLE ##MS_DefinitionReader## ADD MEMBER [my-database-watcher];
-   ALTER SERVER ROLE ##MS_DatabaseConnector## ADD MEMBER [my-database-watcher];
-   ```
+2. Connect to your SQL Database and create a user for the Database Watcher.
+  - [Grant access to Microsoft Entra authenticated watchers](https://learn.microsoft.com/en-us/azure/azure-sql/database-watcher-manage?view=azuresql&tabs=sqldb#grant-access-to-microsoft-entra-authenticated-watchers)
 
 #### Option 2: Using SQL Authentication
 
@@ -170,15 +162,8 @@ az deployment group create \
      -PermissionsToSecrets Get
    ```
 
-3. Create SQL login and user in your database:
-   ```sql
-   -- On master database
-   CREATE LOGIN [dbwatcher-user] WITH PASSWORD = 'YourSecurePassword123!';
- 
-   ALTER SERVER ROLE ##MS_ServerPerformanceStateReader## ADD MEMBER [dbwatcher-user];
-   ALTER SERVER ROLE ##MS_DefinitionReader## ADD MEMBER [dbwatcher-user];
-   ALTER SERVER ROLE ##MS_DatabaseConnector## ADD MEMBER [dbwatcher-user];
-   ```
+3. Create SQL login and user in your database
+  - [Grant access to SQL authenticated watchers](https://learn.microsoft.com/en-us/azure/azure-sql/database-watcher-manage?view=azuresql&tabs=sqldb#grant-access-to-sql-authenticated-watchers)
 
 ### Monitoring SQL Managed Instance
 
@@ -202,8 +187,7 @@ SQL Managed Instance targets work similarly, with automatic private link creatio
 ```
 
 **Setup:**
-1. Create user in MI (same SQL commands as SQL Database above)
-2. Grant permissions
+- [Grant access to Microsoft Entra authenticated watchers](https://learn.microsoft.com/en-us/azure/azure-sql/database-watcher-manage?view=azuresql&tabs=sqlmi#grant-access-to-microsoft-entra-authenticated-watchers)
 
 #### Using SQL Authentication
 
@@ -226,7 +210,8 @@ SQL Managed Instance targets work similarly, with automatic private link creatio
 }
 ```
 
-**Setup:** Same as SQL Database SQL Auth above.
+**Setup:**
+- [Grant access to SQL authenticated watchers](https://learn.microsoft.com/en-us/azure/azure-sql/database-watcher-manage?view=azuresql&tabs=sqlmi#grant-access-to-sql-authenticated-watchers)
 
 ## 🔐 Private Link Configuration
 
