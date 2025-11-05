@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "watcherName": {
+      "value": "<dbwatcher-name>"
+    },
+    "location": {
+      "value": "<dbwatcher-location>"
+    },
+    "kustoResourceGroupName": {
+      "value": "<kusto-resource-group-name>"
+    },
+    "kustoClusterName": {
+      "value": "<kusto-cluster-name>"
+    },
+    "kustoDatabaseName": {
+      "value": "<kusto-database-name>"
+    },
+    "sqlTargets": {
+      "value": [
+        {
+          "resourceGroupName": "<rg-sql-server>",
+          "sqlServerName": "<sql-server-name>",
+          "databaseName": "<database-name>",
+          "authenticationType": "Aad"
+        }
+      ]
+    },
+    "sqlManagedInstanceTargets": {
+      "value": [
+        {
+          "resourceGroupName": "<rg-sql-mi>",
+          "managedInstanceName": "<sql-managed-instance-name>",
+          "authenticationType": "Aad"
+        }
+      ]
+    },
+    "enableKustoPrivateLink": {
+      "value": false
+    },
+    "kustoDnsZone": {
+      "value": "<kustoDnsZone>"
+    }
+  }
+}
