@@ -3,7 +3,8 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "watcherName": {
-      "value": "<dbwatcher-name>"
+      "value": "<dbwatcher-nameprod>"
+    
     },
     "location": {
       "value": "<dbwatcher-location>"
