@@ -1,4 +1,4 @@
-#Requires -Version 7.0
+﻿#Requires -Version 7.0
 <#
 .SYNOPSIS
     Deploys the Database Watcher infrastructure using Bicep templates.
@@ -226,13 +226,13 @@ if ($WhatIf) {
 }
 
 # Confirm deployment
-Write-Log "Ready to deploy Database Watcher" -Level Warning
-$confirmation = Read-Host "Do you want to proceed with the deployment? (yes/no)"
+#Write-Log "Ready to deploy Database Watcher" -Level Warning
+#$confirmation = Read-Host "Do you want to proceed with the deployment? (yes/no)"
 
-if ($confirmation -ne 'yes') {
-    Write-Log "Deployment cancelled by user" -Level Warning
-    exit 0
-}
+#if ($confirmation -ne 'yes') {
+#    Write-Log "Deployment cancelled by user" -Level Warning
+#    exit 0
+#}
 
 Write-Log "Starting deployment..." -Level Info
 $deploymentName = "dbwatcher-deployment-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
