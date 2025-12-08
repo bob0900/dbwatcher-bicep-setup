@@ -351,6 +351,18 @@ For read-only replicas or read-scale scenarios:
 | `usernameSecretName` | ⚠️ Conditional | - | Required for SQL Auth |
 | `passwordSecretName` | ⚠️ Conditional | - | Required for SQL Auth |
 
+
+## Additional files added
+1. **DBWatcher_SQL-DB-MI_Enrollment.ps1** 
+   * Builds the parameter file needed to enroll all SQL MI and SQL DB instances
+2. **SQLMI-only-DBWatcher**
+   *  Builds the parameter file needed to enroll all SQL MI instances
+3. **SQLDB-only-DBWatcher**
+   * Builds the parameter file needed to enroll all SQL DB instances
+4. **SQL-DB-MI_GetTargetNames**
+   * SQL-DB-MI_GetTargetNames - List all SQL MI and SQL DB Instances within PowerShell window
+
+
 ## 🛠️ Troubleshooting
 
 ### Deployment Fails with "Cannot find Bicep"
@@ -409,6 +421,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - **Marcelo Fonseca**
 - **[Sam Mesel](https://github.com/sammesel)**
+- **Bob Cheatham**
 
 ## 🙏 Acknowledgments
 
@@ -419,3 +432,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 **Questions or Issues?** Please open an issue in this repository.
+
