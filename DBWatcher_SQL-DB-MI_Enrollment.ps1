@@ -16,6 +16,8 @@
     $sqldbtargets = " "
     $sqlmitargets = " "
     $parmfileout = " "
+    $MIsubscriptionId = " "
+    $subscriptionId = " "
 
 #Set the values for the json files so that all SQL Managed Instances are listed
 
@@ -39,11 +41,15 @@ $sqlServers = Get-AzSqlServer
 
   # List SQL Databases in this server
   $databases = Get-AzSqlDatabase -ServerName $server.ServerName -ResourceGroupName $server.ResourceGroupName | ?{$_.Edition -notlike "DataWarehouse" -and $_.DatabaseName -notlike "master" -and $_.Status -notlike "Paused" }
+   
+  $subscriptionId = ($server.ResourceId -split '/subscriptions/')[1].Split('/')[0]
+    #Write-Host "Subscription ID: $subscriptionId" 
+   
      
   $filtereddatabases = $databases
 
 #Input database values
-    if ($databases.Count -ne 0) 
+    if ($databases.Count -ne 0 -and $sqlServers.Count -gt 1 ) 
         {
         $sqldbtargets = $sqldbtargets + "      
         ""sqlTargets"": { ""value"": [ "
@@ -54,7 +60,8 @@ $sqlServers = Get-AzSqlServer
     foreach ($db in $filtereddatabases) 
                 {
                     $sqldbtargets = $sqldbtargets + "                       
-                              { ""resourceGroupName"": ""$($db.ResourceGroupName)"",
+                              { ""subscriptionId"": ""$($subscriptionId)"",
+                                ""resourceGroupName"": ""$($db.ResourceGroupName)"",
                                 ""sqlServerName"": ""$($db.ServerName)"",
                                 ""databaseName"": ""$($db.DatabaseName)"",
                                 ""authenticationType"": ""Aad"",
@@ -96,9 +103,13 @@ $sqlServers = Get-AzSqlServer
 
     foreach ($mi in $managedInstances) 
         {
+
+    $MIsubscriptionId = ($mi.Id -split '/subscriptions/')[1].Split('/')[0]
+    #Write-Host "Subscription ID: $MIsubscriptionId" 
  
             $sqlmanagedinstancetargets = $sqlmanagedinstancetargets + " 
-                {   ""resourceGroupName"": ""$($mi.ResourceGroupName)"",
+                {   ""subscriptionId"": ""$($MIsubscriptionId)"",
+                    ""resourceGroupName"": ""$($mi.ResourceGroupName)"",
                     ""managedInstanceName"": ""$($mi.ManagedInstanceName)"",
                     ""authenticationType"": ""Aad"",
                     ""readIntent"": false } "
@@ -124,9 +135,9 @@ $jsonscript = $sqlmitargets + $sqlmanagedinstancetargets #$jsonscript +
 
 $parmfileout =  $sqldbtargets + $jsonscript
 
-$parmfileout | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
+#$parmfileout | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
 
-#Write-Host $parmfileout
+Write-Host $parmfileout
 
 
 
