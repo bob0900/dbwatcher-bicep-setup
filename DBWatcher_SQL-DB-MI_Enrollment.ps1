@@ -18,6 +18,8 @@
     $parmfileout = " "
     $MIsubscriptionId = " "
     $subscriptionId = " "
+    $serverindex = 0 # server count index
+    $index = 0 # database count index
 
 #Set the values for the json files so that all SQL Managed Instances are listed
 
@@ -38,6 +40,8 @@ $sqldbtargets  = $sqldbtargets + "
 $sqlServers = Get-AzSqlServer
     foreach ($server in $sqlServers) 
     {
+        $serverindex++ 
+
 
   # List SQL Databases in this server
   $databases = Get-AzSqlDatabase -ServerName $server.ServerName -ResourceGroupName $server.ResourceGroupName | ?{$_.Edition -notlike "DataWarehouse" -and $_.DatabaseName -notlike "master" -and $_.Status -notlike "Paused" }
@@ -47,12 +51,15 @@ $sqlServers = Get-AzSqlServer
    
      
   $filtereddatabases = $databases
+  Write-Host $serverindex
 
 #Input database values
-    if ($databases.Count -ne 0 -and $sqlServers.Count -gt 1 ) 
+    if (($databases -ne 0) -and ($serverindex -eq  1)) 
         {
-        $sqldbtargets = $sqldbtargets + "      
-        ""sqlTargets"": { ""value"": [ "
+        
+          $sqldbtargets = $sqldbtargets + "      
+       ""sqlTargets"": { ""value"": [ "
+                
         }
     
     $index = 0
