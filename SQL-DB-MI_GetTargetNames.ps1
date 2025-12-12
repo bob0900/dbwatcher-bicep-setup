@@ -1,23 +1,9 @@
 ﻿# Connect-AzAccount
-# Set your key vault name and secret names
-# $keyVaultName = "KV-Purview-Robertc"
-# $usernameSecretName = "SecretUserName"
-# $passwordSecretName = "dbPassword"
-# Get the username and password secrets
 
 
-# Parameters List
-    $dbwatchername = "DBWatcher-Robertc"
-    $region = "eastus"
-    $resourcegroupname = "SQL_Managed_Instance"
-    $kustoclustername = "sqldb-watcher"
-    $kustodatabasename = "dbwatcher"
-    $sqlmanagedinstancetargets = " "
-    $sqldbtargets = " "
-    $sqlmitargets = " "
-    $parmfileout = " "
 
-#Set the values for the json files so that all SQL Managed Instances are listed
+# Discover all Azure SQL Databases 
+# Set the values for the json files so that all SQL Databases are listed
 
 $sqlServers = Get-AzSqlServer
     foreach ($server in $sqlServers) 
