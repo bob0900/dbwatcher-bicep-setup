@@ -51,7 +51,7 @@ $sqlServers = Get-AzSqlServer
    
      
   $filtereddatabases = $databases
-  Write-Host $serverindex
+  #Write-Host $serverindex
 
 #Input database values
     if (($databases -ne 0) -and ($serverindex -eq  1)) 
@@ -142,7 +142,7 @@ $jsonscript = $sqlmitargets + $sqlmanagedinstancetargets #$jsonscript +
 
 $parmfileout =  $sqldbtargets + $jsonscript
 
-#$parmfileout | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
+$parmfileout | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
 
 Write-Host $parmfileout
 
