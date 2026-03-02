@@ -1,10 +1,13 @@
-﻿# Connect-AzAccount
+﻿Connect-AzAccount
 # Set your key vault name and secret names
 # $keyVaultName = "KV-Purview-Robertc"
 # $usernameSecretName = "SecretUserName"
 # $passwordSecretName = "dbPassword"
 # Get the username and password secrets
 
+Set-ExecutionPolicy RemoteSigned
+
+$WarningPreference = "SilentlyContinue" 
 
 # Parameters List
     $dbwatchername = "DBWatcher-Robertc"
@@ -37,21 +40,32 @@ $sqldbtargets  = $sqldbtargets + "
     ""kustoDatabaseName"": { ""value"":" + "'" +  $kustodatabasename + "'" + " }, "
     
   
-$sqlServers = Get-AzSqlServer
+
+#Loop Subscriptions with SQL DBs
+$subsWithSqlServers = foreach ($sub in Get-AzSubscription) {
+  Set-AzContext -SubscriptionId $sub.Id | Out-Null
+  $servers = Get-AzSqlServer -ErrorAction SilentlyContinue
+  #if ($servers) {
+   # [pscustomobject]@{
+    #  SubscriptionName = $sub.Name
+     # SubscriptionId   = $sub.Id
+      #SqlServerCount   = $servers.Count } }
+
+$sqlServers = Get-AzSqlServer -ErrorAction SilentlyContinue
     foreach ($server in $sqlServers) 
     {
         $serverindex++ 
 
 
   # List SQL Databases in this server
-  $databases = Get-AzSqlDatabase -ServerName $server.ServerName -ResourceGroupName $server.ResourceGroupName | ?{$_.Edition -notlike "DataWarehouse" -and $_.DatabaseName -notlike "master" -and $_.Status -notlike "Paused" }
+  $databases = Get-AzSqlDatabase -ServerName $server.ServerName -ResourceGroupName $server.ResourceGroupName | ?{$_.Edition -notlike "DataWarehouse" -and $_.DatabaseName -notlike "master" } -ErrorAction SilentlyContinue
    
   $subscriptionId = ($server.ResourceId -split '/subscriptions/')[1].Split('/')[0]
     #Write-Host "Subscription ID: $subscriptionId" 
    
      
   $filtereddatabases = $databases
-  #Write-Host $serverindex
+  
 
 #Input database values
     if (($databases -ne 0) -and ($serverindex -eq  1)) 
@@ -90,6 +104,7 @@ $sqlServers = Get-AzSqlServer
                 }
     } 
 
+}
    
  
     # Discover all Azure SQL Managed Instances 
@@ -97,10 +112,23 @@ $sqlServers = Get-AzSqlServer
  
     $index = 0
  
+
+
+ #Loop Subscriptions with SQL DBs
+$subsWithSqlServers = foreach ($sub in Get-AzSubscription) {
+  Set-AzContext -SubscriptionId $sub.Id | Out-Null
+  $servers = Get-AzSqlServer -ErrorAction SilentlyContinue
+  #if ($servers) {
+   # [pscustomobject]@{
+    #  SubscriptionName = $sub.Name
+     # SubscriptionId   = $sub.Id
+      #SqlServerCount   = $servers.Count } }
+
+
      $sqlmanagedinstancetargets =  " 
         ""sqlManagedInstanceTargets"": { ""value"": [ "
     
-    $managedInstances = Get-AzSqlInstance
+    $managedInstances = Get-AzSqlInstance -ErrorAction SilentlyContinue
     $totalCount = $managedInstances.Count
          if ($totalCount -ne 0 ) 
              {
@@ -129,6 +157,8 @@ $sqlServers = Get-AzSqlServer
             }
     
         }
+
+     }
       
        if ($totalCount -eq 0 ) 
           {
@@ -144,9 +174,7 @@ $parmfileout =  $sqldbtargets + $jsonscript
 
 $parmfileout | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
 
-Write-Host $parmfileout
+#Write-Host $parmfileout
 
 
 
-
- 
