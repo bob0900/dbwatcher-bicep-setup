@@ -1,16 +1,28 @@
 ﻿# Connect-AzAccount
-
+$sqldbtargets = " "
+$databases = " "
 
 
 # Discover all Azure SQL Databases 
 # Set the values for the json files so that all SQL Databases are listed
 
+
+#Loop Subscriptions with SQL DBs
+$subsWithSqlServers = foreach ($sub in Get-AzSubscription) {
+  Set-AzContext -SubscriptionId $sub.Id | Out-Null
+  $servers = Get-AzSqlServer -ErrorAction SilentlyContinue
+  #if ($servers) {
+   # [pscustomobject]@{
+    #  SubscriptionName = $sub.Name
+     # SubscriptionId   = $sub.Id
+      #SqlServerCount   = $servers.Count } }
+      
 $sqlServers = Get-AzSqlServer
     foreach ($server in $sqlServers) 
     {
 
   # List SQL Databases in this server
-  $databases = Get-AzSqlDatabase -ServerName $server.ServerName -ResourceGroupName $server.ResourceGroupName | ?{$_.Edition -notlike "DataWarehouse" -and $_.DatabaseName -notlike "master" -and $_.Status -notlike "Paused" }
+  $databases = Get-AzSqlDatabase -ServerName $server.ServerName -ResourceGroupName $server.ResourceGroupName | ?{$_.Edition -notlike "DataWarehouse" -and $_.DatabaseName -notlike "master"  }
      
   $filtereddatabases = $databases
 
@@ -28,7 +40,8 @@ $sqlServers = Get-AzSqlServer
     foreach ($db in $filtereddatabases) 
                 {
                     $sqldbtargets = $sqldbtargets + "                       
-           [ ""resourceGroupName"": ""$($db.ResourceGroupName)"",
+           [""Subscription-ID"": ""$($sub.Id)"", 
+            ""Resource-Group-Name"": ""$($db.ResourceGroupName)"",
              ""sqlServerName"": ""$($db.ServerName)"",
              ""databaseName"": ""$($db.DatabaseName)"" "
                     $index++
@@ -47,8 +60,11 @@ $sqlServers = Get-AzSqlServer
                 }
     } 
 
-   
+}   
+
  
+
+
     # Discover all Azure SQL Managed Instances 
     # Set the values for the json files so that all SQL Managed Instances are listed
  
@@ -59,6 +75,16 @@ $sqlServers = Get-AzSqlServer
         ""sqlManagedInstanceTargets"": 
         ""value"": [ "
     
+$subsWithSqlServers = foreach ($sub in Get-AzSubscription) {
+  Set-AzContext -SubscriptionId $sub.Id | Out-Null
+  $servers = Get-AzSqlServer -ErrorAction SilentlyContinue
+  #if ($servers) {
+   # [pscustomobject]@{
+    #  SubscriptionName = $sub.Name
+     # SubscriptionId   = $sub.Id
+      #SqlServerCount   = $servers.Count } }
+
+
     $managedInstances = Get-AzSqlInstance
     $totalCount = $managedInstances.Count
          if ($totalCount -ne 0 ) 
@@ -71,8 +97,9 @@ $sqlServers = Get-AzSqlServer
         {
  
             $sqlmanagedinstancetargets = $sqlmanagedinstancetargets + " 
-           { ""resourceGroupName"": ""$($mi.ResourceGroupName)"",
-             ""managedInstanceName"": ""$($mi.ManagedInstanceName)"" "
+           { ""Subscription-ID"": ""$($sub.id)"",
+             ""Resource-Group-Name"": ""$($mi.ResourceGroupName)"",
+             ""Managed-Instance-Name"": ""$($mi.ManagedInstanceName)"" "
             $index++
 
       if ($index -lt $managedInstances.Count)
@@ -88,6 +115,7 @@ $sqlServers = Get-AzSqlServer
             $sqlmanagedinstancetargets = " "  
           }
 
+}
 
 $sqlmanagedinstancetargets = $sqlmanagedinstancetargets + " ] " 
 $jsonscript = $sqlmitargets + $sqlmanagedinstancetargets #$jsonscript + 
