@@ -20,13 +20,26 @@ $sqlmitargets  = $sqlmitargets + "
     ""kustoClusterName"": { ""value"":" + "'" + $kustoclustername + "'" +  " },
     ""kustoDatabaseName"": { ""value"":" + "'" +  $kustodatabasename + "'" + " }, "
 
- 
- #Set the values for the json files so that all SQL Managed Instances are listed
+    
+#Set the values for the json files so that all SQL Managed Instances are listed
  $index = 0
- 
+  
+
  $sqlmanagedinstancetargets =  " 
   ""sqlManagedInstanceTargets"": { ""value"": [ "
     
+  
+  #Loop Subscriptions with SQL DBs
+$subsWithSqlServers = foreach ($sub in Get-AzSubscription) {
+  Set-AzContext -SubscriptionId $sub.Id | Out-Null
+  $servers = Get-AzSqlServer -ErrorAction SilentlyContinue
+  #if ($servers) {
+   # [pscustomobject]@{
+    #  SubscriptionName = $sub.Name
+     # SubscriptionId   = $sub.Id
+      #SqlServerCount   = $servers.Count } }
+
+  
     $managedInstances = Get-AzSqlInstance
     $totalCount = $managedInstances.Count
 
@@ -37,7 +50,8 @@ $sqlmitargets  = $sqlmitargets + "
     
  
  $sqlmanagedinstancetargets = $sqlmanagedinstancetargets + " 
-    { ""resourceGroupName"": ""$($mi.ResourceGroupName)"",
+    { ""subscriptionId"": ""$($subscriptionId)"",
+      ""resourceGroupName"": ""$($mi.ResourceGroupName)"",
       ""managedInstanceName"": ""$($mi.ManagedInstanceName)"",
       ""authenticationType"": ""Aad"",
       ""readIntent"": false } "
@@ -52,7 +66,8 @@ $sqlmitargets  = $sqlmitargets + "
     
     }
  
-
+ }
+ 
  #Write-Host $sqlmanagedinstancetargets 
   
  

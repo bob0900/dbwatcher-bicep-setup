@@ -39,7 +39,7 @@ $sqldbtargets  = $sqldbtargets + "
     ""kustoClusterName"": { ""value"":" + "'" + $kustoclustername + "'" +  " },
     ""kustoDatabaseName"": { ""value"":" + "'" +  $kustodatabasename + "'" + " }, "
     
-  
+ 
 
 #Loop Subscriptions with SQL DBs
 $subsWithSqlServers = foreach ($sub in Get-AzSubscription) {
@@ -81,7 +81,7 @@ $sqlServers = Get-AzSqlServer -ErrorAction SilentlyContinue
     foreach ($db in $filtereddatabases) 
                 {
                     $sqldbtargets = $sqldbtargets + "                       
-                              { ""subscriptionId"": ""$($subscriptionId)"",
+                              { ""subscriptionId"": ""$($sub.Id)"",
                                 ""resourceGroupName"": ""$($db.ResourceGroupName)"",
                                 ""sqlServerName"": ""$($db.ServerName)"",
                                 ""databaseName"": ""$($db.DatabaseName)"",

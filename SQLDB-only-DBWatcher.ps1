@@ -1,4 +1,4 @@
-﻿# Connect-AzAccount
+﻿Connect-AzAccount
 
 # Set your key vault name and secret names
 # $keyVaultName = "KV-Purview-Robertc"
@@ -6,6 +6,7 @@
 # $passwordSecretName = "dbPassword"
 # Get the username and password secrets
 
+$WarningPreference = "SilentlyContinue"
 
 # Parameters List
     $dbwatchername = "DBWatcher-Robertc"
@@ -29,16 +30,25 @@ $sqldbtargets  = $sqldbtargets + "
     ""kustoResourceGroupName"": { ""value"":" + "'" + $resourcegroupname + "'" + " },
     ""kustoClusterName"": { ""value"":" + "'" + $kustoclustername + "'" +  " },
     ""kustoDatabaseName"": { ""value"":" + "'" +  $kustodatabasename + "'" + " }, "
-    
+  
+  $subsWithSqlServers = foreach ($sub in Get-AzSubscription) {
+  Set-AzContext -SubscriptionId $sub.Id | Out-Null
+  $servers = Get-AzSqlServer -ErrorAction SilentlyContinue
+  #if ($servers) {
+   # [pscustomobject]@{
+    #  SubscriptionName = $sub.Name
+     # SubscriptionId   = $sub.Id
+      #SqlServerCount   = $servers.Count } }
+  
   
 
-    $sqlServers = Get-AzSqlServer
+    $sqlServers = Get-AzSqlServer -ErrorAction SilentlyContinue
      foreach ($server in $sqlServers) {
 
          
         #Write-Host "  SQL Server: $($server.ServerName) - Resource Group: $($server.ResourceGroupName)"
         # List SQL Databases in this server
-        $databases = Get-AzSqlDatabase -ServerName $server.ServerName -ResourceGroupName $server.ResourceGroupName | ?{$_.Edition -notlike "DataWarehouse" -and $_.DatabaseName -notlike "master" -and $_.Status -notlike "Paused" }
+        $databases = Get-AzSqlDatabase -ServerName $server.ServerName -ResourceGroupName $server.ResourceGroupName | ?{$_.Edition -notlike "DataWarehouse" -and $_.DatabaseName -notlike "master" } -ErrorAction SilentlyContinue
         
         $filtereddatabases = $databases
 
@@ -53,7 +63,8 @@ $index = 0
 
             
        $sqldbtargets = $sqldbtargets + "                       
-                          { ""resourceGroupName"": ""$($db.ResourceGroupName)"",
+                            ""subscriptionId"": ""$($sub.Id)"",                                { 
+                            ""resourceGroupName"": ""$($db.ResourceGroupName)"",
                             ""sqlServerName"": ""$($db.ServerName)"",
                             ""databaseName"": ""$($db.DatabaseName)"",
                             ""authenticationType"": ""Aad"",
@@ -68,6 +79,8 @@ $index = 0
             }
         }
     
+    }
+
 if ($databases.Count -ne 0) {
     $sqldbtargets = $sqldbtargets + "                 ] } } }"        
 }    
