@@ -42,7 +42,8 @@ $subsWithSqlServers = foreach ($sub in Get-AzSubscription) {
   
     $managedInstances = Get-AzSqlInstance
     $totalCount = $managedInstances.Count
-
+    $mi = 0 
+    $index = 0
     foreach ($mi in $managedInstances) 
     {
  
@@ -83,6 +84,6 @@ $sqlmanagedinstancetargets = $sqlmanagedinstancetargets + " ] } } } "
 
 $jsonscript = $sqlmitargets + $sqlmanagedinstancetargets #$jsonscript + 
 
-Write-Host $jsonscript
+#Write-Host $jsonscript
 
 $jsonscript | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
