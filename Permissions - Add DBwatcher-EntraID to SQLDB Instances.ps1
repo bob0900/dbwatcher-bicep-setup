@@ -11,7 +11,7 @@
 
 #Connect-AzAccount
 
-$DBWatcher_Name = "DBWatcher-Robertc"
+$DBWatcher_Name = "DBWatcher-NameGoesHere"
 
 $query = "IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE [name] = '$DBWatcher_Name')
 CREATE LOGIN [$DBWatcher_Name] FROM EXTERNAL PROVIDER;
@@ -45,12 +45,22 @@ $sqlServers = Get-AzSqlServer -ErrorAction SilentlyContinue
         #Write-Host $ServerInstancename
         #Write-Host "   InstaneName - $($ServerInstancename) - SQL Database: $($db.DatabaseName) - Database Edition: $($db.Edition)"
 
-       Invoke-Sqlcmd -ServerInstance $ServerInstancename -Database 'master' -Query $query -AccessToken $accessToken 
-                  
-                                       }
-    
-        
+if ($server.ResourceGroupName -like "*rg*") 
+        {
 
-                                                            }
+       
+       
+       Invoke-Sqlcmd -ServerInstance $ServerInstancename -Database 'master' -Query $query -AccessToken $accessToken 
+       
+       #The code below is commented out but can be used to see the resource group name and the sql statements executed
+       #Write-Host "$($Server.ResourceGroupName)" 
+       #Write-Host "Invoke-Sqlcmd -ServerInstance $($ServerInstancename) -Database 'master' -Query $query -AccessToken $($accessToken)"
+        
+        }
+       
+           
+           }
+            
+                   }
 
   
