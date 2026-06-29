@@ -46,5 +46,5 @@
 $jsonscript = $jsonscript + $sqlmanagedinstancetargets
 
 Write-Host $jsonscript
-    
+$jsonscript | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"    
  
