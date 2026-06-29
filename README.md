@@ -7,6 +7,13 @@ This repository contains a parameterized Bicep template for deploying **Azure Da
 - **Bicep Template** (`dbwatcher.bicep`) - Infrastructure as Code for Database Watcher
 - **Parameters File** (`dbwatcher.parameters.json`) - Configuration values
 - **PowerShell Deployment Script** (`deploy-dbwatcher.ps1`) - Automated deployment with validation
+- **Script to List All SQL-DB target servers** ('0 List Servers Only - SQLDB target Instances.ps1') - scope number of possible SQLDB Servers
+- **Script to List All SQL-MI target servers** ('0 List Servers Only - SQLMI target Instances.ps1') - scope number of possible SQLMI Servers
+- **Automate the adding of Permissions to all SQL-DB target servers** ('1 Permissions - Add DBwatcher-EntraID to SQLDB Instances.ps1') - executes SQL Script
+- **Automate the adding of Permissions to all SQL-MI target servers** ('1 Permissions - Add DBwatcher-EntraID to SQLMI Instances.ps1') - executes SQL Script
+- **Automated configuration file creation for all SQL-DB target servers** ('2 DB Watcher Configuration File for SQL DB Enrollment.ps1') - executes SQL Script
+- **Automated configuration file creation for all SQL-MI target servers** ('2 DB Watcher Configuration File for SQL MI Enrollment.ps1') - executes SQL Script
+ 
 
 ## 📦 Prerequisites
 
