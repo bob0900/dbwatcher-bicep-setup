@@ -63,7 +63,7 @@ if ($server.ResourceGroupName -like "**")
       #The code below is commented out but can be used to see the resource group name and the sql statements executed
        # Write-Host "$($Server.ResourceGroupName)" 
        #Write-Output "Invoke-Sqlcmd -ServerInstance $($ServerInstancename) -Database 'master' -Query $query -AccessToken $($accessToken)" | Out-File -FilePath "C:\Temp\Output.csv" 
-        Write-host "ResourceGroupName: $($Server.ResourceGroupName) SQL DBServerName: $($ServerInstancename) "    # | Out-File -FilePath "C:\Temp\Output.csv" 
+        Write-host "ResourceGroupName: $($Server.ResourceGroupName) SQLDB ServerName: $($ServerInstancename) "    # | Out-File -FilePath "C:\Temp\Output.csv" 
                
                                                                 }
        
