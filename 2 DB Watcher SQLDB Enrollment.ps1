@@ -71,7 +71,7 @@ if ($databases.Count -ne 0) {
     }
 
  
-
- Write-Host $sqldbtargets
+$sqldbtargets | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
+Write-Host $sqldbtargets
 
 
