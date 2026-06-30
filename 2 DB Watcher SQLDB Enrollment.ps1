@@ -1,4 +1,4 @@
-﻿
+
 # Connect-AzAccount
 
 # Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
@@ -17,6 +17,29 @@
     $resourcegroupname = "SQL_Managed_Instance"
     $kustoclustername = "sqldb-watcher"
     $kustodatabasename = "dbwatcher"
+
+
+if ($server.ResourceGroupName -like "**") 
+    {
+        
+        $admin = Get-AzSqlServerActiveDirectoryAdministrator `
+                    -ResourceGroupName $server.ResourceGroupName `
+                    -ServerName $server.ServerName `
+                    -ErrorAction SilentlyContinue
+
+      if ($admin -and $admin.ObjectId -ne "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx") 
+           {
+            [PSCustomObject]@{
+                SubscriptionId = [string]$sub.Id
+                ServerName     = [string]$server.ServerName
+                ResourceGroup  = [string]$server.ResourceGroupName
+                AdminObjectId  = [string]$admin.ObjectId
+                AdminName      = [string]$admin.DisplayName }
+                 
+        #Invoke-Sqlcmd -ServerInstance $ServerInstancename -Database 'master' -Query $query -AccessToken $accessToken 
+        #Write-Output "ServerName: $($ServerInstancename) Query = $($query) "
+           }
+
 
  
 #Set the values for the json files so that all SQL Managed Instances are listed
@@ -40,6 +63,8 @@ $sqldbtargets = "
     
         
         # List SQL Databases in this server
+        
+        
         $databases = Get-AzSqlDatabase -ServerName $server.ServerName -ResourceGroupName $server.ResourceGroupName | ?{$_.Edition -notlike "DataWarehouse" -and $_.DatabaseName -notlike "master" -and $_.Status -notlike "Paused" }
         
         $filtereddatabases = $databases
@@ -49,7 +74,6 @@ $sqldbtargets = "
 if ($databases.Count -ne 0) {
  $sqldbtargets = $sqldbtargets + "      { sqlTargets: { value: [ "
 }
-
       
        foreach ($db in $filtereddatabases  ) {
             #Write-Host "    SQL Database: $($db.DatabaseName) - Database Edition: $($db.Edition)"
@@ -70,8 +94,10 @@ if ($databases.Count -ne 0) {
     
     }
 
+ }
+
  
 $sqldbtargets | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
-Write-Host $sqldbtargets
 
+Write-Host $sqldbtargets
 
