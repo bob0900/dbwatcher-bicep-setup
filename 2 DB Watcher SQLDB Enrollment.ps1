@@ -44,7 +44,7 @@ $sqldbtargets = "
 # Define inventory database details 
 $DBMaintServer   = "sqldb-maintenance-robertc.database.windows.net"
 $Database = "dbMaintenance"
-$SqlQuery = "SELECT  distinct top 75 a.servername FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
+$SqlQuery = "SELECT  distinct top 75 a.servername, a.DBNAME FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
 
 # Execute the inventory resluts query and store the results in an array
 $Rows = Invoke-Sqlcmd -ServerInstance $DBMaintServer -Database $Database -Query $SqlQuery -AccessToken $accessToken
@@ -65,6 +65,17 @@ $sqldbtargets = $sqldbtargets + "      { sqlTargets: { value: [ "
                             enablePrivateLink: true,
                             readIntent: false }"
         
+#Update SQL Inventory table with DB-WatcherName
+$SQLUpdate = "UPDATE dbo.Targets
+                   SET enrolled = 'Y'
+              WHERE servername = '$($Row.servername)' AND [DBNAME] = '$($Row.DBNAME)'  AND ServiceTier != 'DataWarehouse' "
+
+Write-Host  $SQLUpdate
+
+Invoke-Sqlcmd -ServerInstance $($DBMaintServer) -Database $($MaintDatabase) -Query $SQLUpdate -AccessToken $($accessToken)
+
+  
+  
                             }
 
                         }
