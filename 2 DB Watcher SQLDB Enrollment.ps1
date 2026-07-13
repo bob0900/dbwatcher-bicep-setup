@@ -1,5 +1,13 @@
+#Install-Module az.accounts -MinimumVersion 5.5.0 -Force -AllowClobber
+#Update-Module -Name Az.Accounts -Force -RequiredVersion 5.5.1
+#update-Module az.accounts -requiredversion 5.5.1 -Force 
+#Install-module az.sql -RequiredVersion 7.0.0 -Force -AllowClobber
+#Import-Module az.sql -RequiredVersion 7.0.0 -force
+#Install-Module -Name SqlServer -RequiredVersion 22.4.5.1 -Force -AllowClobber
+#Import-Module SqlServer -RequiredVersion 22.4.5.1 
 
-# Connect-AzAccount
+
+#Connect-AzAccount -UseDeviceAuthentication
 
 # Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
@@ -18,32 +26,11 @@
     $kustoclustername = "sqldb-watcher"
     $kustodatabasename = "dbwatcher"
 
-
-if ($server.ResourceGroupName -like "**") 
-    {
-        
-        $admin = Get-AzSqlServerActiveDirectoryAdministrator `
-                    -ResourceGroupName $server.ResourceGroupName `
-                    -ServerName $server.ServerName `
-                    -ErrorAction SilentlyContinue
-
-      if ($admin -and $admin.ObjectId -ne "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx") 
-           {
-            [PSCustomObject]@{
-                SubscriptionId = [string]$sub.Id
-                ServerName     = [string]$server.ServerName
-                ResourceGroup  = [string]$server.ResourceGroupName
-                AdminObjectId  = [string]$admin.ObjectId
-                AdminName      = [string]$admin.DisplayName }
-                 
-        #Invoke-Sqlcmd -ServerInstance $ServerInstancename -Database 'master' -Query $query -AccessToken $accessToken 
-        #Write-Output "ServerName: $($ServerInstancename) Query = $($query) "
-           }
+# Get the access token for Azure SQL MI
+$accessToken = (Get-AzAccessToken -ResourceUrl "https://database.windows.net").Token
 
 
- 
-#Set the values for the json files so that all SQL Managed Instances are listed
-
+#Set the values for the json files so that all SQL-DB Instances are listed
 $sqldbtargets = "
 {
   parameters: {
@@ -53,50 +40,42 @@ $sqldbtargets = "
     kustoClusterName: { value:" +  $kustoclustername + " },
     kustoDatabaseName: { value:" +  $kustodatabasename + " }, "
     
-  
 
-    $sqlServers = Get-AzSqlServer
-     foreach ($server in $sqlServers) {
+# Define inventory database details 
+$DBMaintServer   = "sqldb-maintenance-robertc.database.windows.net"
+$Database = "dbMaintenance"
+$SqlQuery = "SELECT  distinct top 75 a.servername FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
 
-         
-        #Write-Host "  SQL Server: $($server.ServerName) - Resource Group: $($server.ResourceGroupName)"
-    
-        
-        # List SQL Databases in this server
-        
-        
-        $databases = Get-AzSqlDatabase -ServerName $server.ServerName -ResourceGroupName $server.ResourceGroupName | ?{$_.Edition -notlike "DataWarehouse" -and $_.DatabaseName -notlike "master" -and $_.Status -notlike "Paused" }
-        
-        $filtereddatabases = $databases
+# Execute the inventory resluts query and store the results in an array
+$Rows = Invoke-Sqlcmd -ServerInstance $DBMaintServer -Database $Database -Query $SqlQuery -AccessToken $accessToken
 
+foreach ($Row in $Rows) {
+
+        
 #Input database values
-
-if ($databases.Count -ne 0) {
- $sqldbtargets = $sqldbtargets + "      { sqlTargets: { value: [ "
-}
+if ($Row.Count -ne 0)       {
+$sqldbtargets = $sqldbtargets + "      { sqlTargets: { value: [ "
+                            
       
-       foreach ($db in $filtereddatabases  ) {
-            #Write-Host "    SQL Database: $($db.DatabaseName) - Database Edition: $($db.Edition)"
-
-            
        $sqldbtargets = $sqldbtargets + "                       
-                          { resourceGroupName: $($db.ResourceGroupName),
-                            sqlServerName: $($db.ServerName),
-                            databaseName: $($db.DatabaseName),
+                          { resourceGroupName: $($row.ResourceGroupName),
+                            sqlServerName: $($row.ServerName),
+                            databaseName: $($row.DBNAME),
                             authenticationType: Aad,
                             enablePrivateLink: true,
                             readIntent: false }"
-        }
-    
-if ($databases.Count -ne 0) {
+        
+                            }
+
+                        }
+
+
+   
+if ($row.Count -ne 0) {
     $sqldbtargets = $sqldbtargets + "                 ] } } "        
-}    
-    
-    }
+                      }
 
- }
 
- 
 $sqldbtargets | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
 
 Write-Host $sqldbtargets
