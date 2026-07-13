@@ -23,18 +23,14 @@ $accessToken = (Get-AzAccessToken -ResourceUrl "https://database.windows.net").T
 
 # Define inventory database details 
 $DBMaintServer   = "sqldb-maintenance-robertc.database.windows.net"
-$Database = "dbMaintenance"
-$SqlQuery = "SELECT  distinct a.servername FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
+$MaintDatabase = "dbMaintenance"
+$SqlQuery = "SELECT  distinct top 75 a.servername FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
 
 
 # Execute the inventory resluts query and store the results in an array
 $Rows = Invoke-Sqlcmd -ServerInstance $DBMaintServer -Database $Database -Query $SqlQuery -AccessToken $accessToken
 
 
-#Update SQL Inventory table with DB-WatcherName
-$SQLUpdate = "UPDATE dbo.Targets
-                   SET dbwatchername = '$DBWatcherName'
-              WHERE servername = '$ServerInstancename' AND ServiceTier != 'DataWarehouse' "
 
 
 $subsWithSqlServers = foreach ($sub in Get-AzSubscription) 
@@ -54,6 +50,18 @@ foreach ($Row in $Rows)
                 
         #Write-Host "Invoke-Sqlcmd -ServerInstance $($SQLDBName) -Database 'master' -Query $query -AccessToken $($accessToken)"
         Invoke-Sqlcmd -ServerInstance $($SQLDBName) -Database 'master' -Query $query -AccessToken $($accessToken)
+
+#Update SQL Inventory table with DB-WatcherName
+$SQLUpdate = "UPDATE dbo.Targets
+                   SET dbwatchername = '$DBWatcherName'
+              WHERE servername = '$($Row.servername)'  AND ServiceTier != 'DataWarehouse' "
+
+Write-Host  $SQLUpdate
+
+Invoke-Sqlcmd -ServerInstance $($DBMaintServer) -Database $($MaintDatabase) -Query $SQLUpdate -AccessToken $($accessToken)
+
+        
+
 }
               
         
