@@ -1,4 +1,4 @@
-/****** Object:  Table [dbo].[Targets]    Script Date: 7/9/2026 10:19:58 AM ******/
+/****** Object:  Table [dbo].[Targets]    Script Date: 7/14/2026 4:32:53 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -19,6 +19,8 @@ CREATE TABLE [dbo].[Targets](
 	[DeploymentModel] [varchar](255) NULL,
 	[AdminName] [varchar](75) NULL,
 	[ResourceGroupName] [varchar](255) NULL,
+	[SubscriptionID] [varchar](255) NULL,
+	[SubscriptionName] [varchar](255) NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[ServerID] ASC
@@ -30,3 +32,19 @@ ALTER TABLE [dbo].[Targets] ADD  DEFAULT (getdate()) FOR [RegistrationDate]
 GO
 
 
+CREATE TABLE [dbo].[OnboardingData](
+	[OnboardID] [int] IDENTITY(1,1) NOT NULL,
+	[dbwatchername] [varchar](80) NULL,
+	[RegistrationDate] [datetime2](7) NULL,
+	[ResourceGroupName] [varchar](255) NULL,
+	[SubscriptionName] [varchar](255) NULL,
+	[InputData] [varchar](max) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[OnboardID] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[OnboardingData] ADD  DEFAULT (getdate()) FOR [RegistrationDate]
+GO
