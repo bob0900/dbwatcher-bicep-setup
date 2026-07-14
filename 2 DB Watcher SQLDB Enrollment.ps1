@@ -18,6 +18,9 @@
 # $passwordSecretName = "dbPassword"
 # Get the username and password secrets
 
+#Allow remote PowerShell scripts to run
+Enable-PSRemoting -Force
+
 
 # Parameters List
     $dbwatchername = "DBWatcher-Robertc"
@@ -43,11 +46,11 @@ $sqldbtargets = "
 
 # Define inventory database details 
 $DBMaintServer   = "sqldb-maintenance-robertc.database.windows.net"
-$Database = "dbMaintenance"
+$MaintDatabase = "dbMaintenance"
 $SqlQuery = "SELECT  distinct top 75 a.servername, a.DBNAME FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
 
 # Execute the inventory resluts query and store the results in an array
-$Rows = Invoke-Sqlcmd -ServerInstance $DBMaintServer -Database $Database -Query $SqlQuery -AccessToken $accessToken
+$Rows = Invoke-Sqlcmd -ServerInstance $DBMaintServer -Database $MaintDatabase -Query $SqlQuery -AccessToken $accessToken
 
 foreach ($Row in $Rows) {
 
@@ -90,4 +93,12 @@ if ($row.Count -ne 0) {
 $sqldbtargets | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
 
 Write-Host $sqldbtargets
+
+
+#Onboard the servers to Database Watcher
+
+Invoke-Command -ComputerName localhost -FilePath "C:\Path\To\YourScript.ps1"
+
+
+
 
