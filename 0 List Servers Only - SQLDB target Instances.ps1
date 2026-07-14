@@ -2,10 +2,10 @@
 #install-Module -Name Az.* -Force -AllowClobber
 #install-Module -Name SqlServer -Force -AllowClobber
 #Update-Module -Name Az.Accounts -Force -RequiredVersion 5.5.1
-# update-Module az.accounts -requiredversion 5.5.1 -Force 
-# Import-Module Az.Accounts -RequiredVersion 5.5.1 -Force 
-# Install-module az.sql -RequiredVersion 7.0.0 -Force -AllowClobber
-# import-Module az.sql -RequiredVersion 7.0.0 -force 
+#update-Module az.accounts -requiredversion 5.5.1 -Force 
+#Import-Module Az.Accounts -RequiredVersion 5.5.1 -Force 
+#Install-module az.sql -RequiredVersion 7.0.0 -Force -AllowClobber
+#import-Module az.sql -RequiredVersion 7.0.0 -force 
 #uninstall-module az.accounts -Force 
 #Install-Module -Name Az.Accounts -RequiredVersion 5.3.3 -Force -AllowClobber
 #update-Module -Name Az.accounts -Force
@@ -64,7 +64,9 @@ foreach ($LogicalSQLDB in $SQLDBs)   {
         $ComputeTier = $LogicalSQLDB.CurrentServiceObjectiveName
         $DeploymentModel = $LogicalSQLDB.Deploymentmodel
         $AdminName = $server.SqlAdministratorLogin
-
+        $SubscriptionID = $sub.Id
+        $SubscriptionName = $Sub.Name
+        
 
 Write-Host "    Found Database: $($LogicalSQLDB.DatabaseName)" -ForegroundColor Green 
    
@@ -81,17 +83,16 @@ if ($server.ResourceGroupName -like "**")
 $query = ""
 $query = " IF NOT EXISTS (SELECT 1 FROM dbo.Targets WHERE servername = '$ServerInstancename' and DBNAME = '$DBNAME' )
             BEGIN
-                    INSERT INTO dbo.Targets (AdminName, ResourceGroupName, servername, servertype, DeploymentModel, ServiceTier, DBNAME, contactperson, dbwatchername, enrolled, RegistrationDate )
-                    VALUES ('$AdminName', '$ResourceGroupName', '$ServerInstancename', 'Azure SQL Database', '$DeploymentModel', '$ServiceTier', '$DBNAME', 'DBA@BigCorp.com', '$DBWatcherName', 'N' , GETDATE() ); 
+                    INSERT INTO dbo.Targets (SubscriptionID, SubscriptionName, AdminName, ResourceGroupName, servername, servertype, DeploymentModel, ServiceTier, DBNAME, contactperson, dbwatchername, enrolled, RegistrationDate )
+                    VALUES ('$SubscriptionID','$SubscriptionName', '$AdminName', '$ResourceGroupName', '$ServerInstancename', 'Azure SQL Database', '$DeploymentModel', '$ServiceTier', '$DBNAME', 'DBA@BigCorp.com', '$DBWatcherName', 'N' , GETDATE() ); 
             END
                     ELSE
             BEGIN
                     UPDATE dbo.Targets
-                           SET AdminName = '$AdminName', ResourceGroupName = '$ResourceGroupName', DeploymentModel = '$DeploymentModel', ServiceTier = '$ServiceTier'
+                           SET SubscriptionID = '$SubscriptionID', SubscriptionName = '$SubscriptionName', AdminName = '$AdminName', ResourceGroupName = '$ResourceGroupName', DeploymentModel = '$DeploymentModel', ServiceTier = '$ServiceTier'
                     WHERE servername = '$ServerInstancename' AND DBNAME = '$DBNAME';
 
             END "
-
 
 
        Invoke-Sqlcmd -ServerInstance $MainServerName -Database $MaintDBName -AccessToken $accessToken -Query $query
