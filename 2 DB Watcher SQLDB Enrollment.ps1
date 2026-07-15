@@ -33,40 +33,61 @@ Enable-PSRemoting -Force
 $accessToken = (Get-AzAccessToken -ResourceUrl "https://database.windows.net").Token
 
 
+$sqldbtargets = "{" + "`$schema" + ":" + """https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"","
+
+
 #Set the values for the json files so that all SQL-DB Instances are listed
-$sqldbtargets = "
-{
-  parameters: {
-    watcherName: { value:" +  $dbwatchername +  "},
-    location: { value: " + $region + " },
-    kustoResourceGroupName: { value:" + $resourcegroupname + " },
-    kustoClusterName: { value:" +  $kustoclustername + " },
-    kustoDatabaseName: { value:" +  $kustodatabasename + " }, "
-    
+$sqldbtargets  = $sqldbtargets + "
+  ""parameters"": {
+    ""watcherName"": { ""value"":""$($dbwatchername)"" },
+    ""location"": { ""value"":""$($region)""},
+    ""kustoResourceGroupName"": { ""value"":""$($resourcegroupname)"" },
+    ""kustoClusterName"": { ""value"": ""$($kustoclustername)"" },
+    ""kustoDatabaseName"": { ""value"": ""$($kustodatabasename)"" }, "
+
+
+
+$sqldbtargets = $sqldbtargets + "       ""sqlTargets"": { ""value"": [  "
 
 # Define inventory database details 
 $DBMaintServer   = "sqldb-maintenance-robertc.database.windows.net"
 $MaintDatabase = "dbMaintenance"
-$SqlQuery = "SELECT  distinct top 75 a.servername, a.DBNAME FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
+$SqlQuery = "SELECT  distinct top 75 a.subscriptionId, a.servername, a.ResourceGroupName, a.DBNAME FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
 
 # Execute the inventory resluts query and store the results in an array
 $Rows = Invoke-Sqlcmd -ServerInstance $DBMaintServer -Database $MaintDatabase -Query $SqlQuery -AccessToken $accessToken
 
+
+$counter = 0
+
 foreach ($Row in $Rows) {
 
-        
+$totalrows = $Rows.Count 
+
+
 #Input database values
-if ($Row.Count -ne 0)       {
-$sqldbtargets = $sqldbtargets + "      { sqlTargets: { value: [ "
+if ($Rows.Count -ne 0)       {
+#$sqldbtargets = $sqldbtargets + "      { sqlTargets: { value: [ "
                             
       
-       $sqldbtargets = $sqldbtargets + "                       
-                          { resourceGroupName: $($row.ResourceGroupName),
-                            sqlServerName: $($row.ServerName),
-                            databaseName: $($row.DBNAME),
-                            authenticationType: Aad,
-                            enablePrivateLink: true,
-                            readIntent: false }"
+    $sqldbtargets = $sqldbtargets + " 
+                            {""subscriptionId"": ""$($row.SubscriptionID)"",                                 
+                            ""resourceGroupName"": ""$($row.ResourceGroupName)"",
+                            ""sqlServerName"": ""$($row.ServerName)"",
+                            ""databaseName"": ""$($row.DBNAME)"",
+                            ""authenticationType"": ""Aad"",
+                            ""enablePrivateLink"": true,
+                            ""readIntent"": false }"
+
+       
+$counter++
+Write-Host $counter
+if ($counter -ne $totalrows) {
+        $sqldbtargets = $sqldbtargets + ","
+
+                             }
+
         
 #Update SQL Inventory table with DB-WatcherName
 $SQLUpdate = "UPDATE dbo.Targets
@@ -86,7 +107,7 @@ Invoke-Sqlcmd -ServerInstance $($DBMaintServer) -Database $($MaintDatabase) -Que
 
    
 if ($row.Count -ne 0) {
-    $sqldbtargets = $sqldbtargets + "                 ] } } "        
+    $sqldbtargets = $sqldbtargets + "                 ] } } } "        
                       }
 
 
@@ -97,7 +118,7 @@ Write-Host $sqldbtargets
 
 #Onboard the servers to Database Watcher
 
-Invoke-Command -ComputerName localhost -FilePath "C:\Path\To\YourScript.ps1"
+#Invoke-Command -ComputerName localhost -FilePath "C:\Path\To\YourScript.ps1" -ResourceGroupName "rg-database-watcher"
 
 
 
