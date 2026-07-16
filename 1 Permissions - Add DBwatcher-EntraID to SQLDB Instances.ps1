@@ -10,6 +10,10 @@
 #Connect-AzAccount -UseDeviceAuthentication
 
 $DBWatcherName = "DBWatcher-Name-Goes-Here"
+# Define inventory database details 
+$DBMaintServer   = "sqldb-maintenance-robertc.database.windows.net"
+$MaintDatabase = "dbMaintenance"
+
 
 $query = "IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = '$($DBWatcherName)')
 BEGIN CREATE LOGIN [$($DBWatcherName)] FROM EXTERNAL PROVIDER; END
@@ -21,16 +25,12 @@ ALTER SERVER ROLE ##MS_DatabaseConnector## ADD MEMBER [$($DBWatcherName)];"
 # Get the access token for Azure SQL MI
 $accessToken = (Get-AzAccessToken -ResourceUrl "https://database.windows.net").Token
 
-# Define inventory database details 
-$DBMaintServer   = "sqldb-maintenance-robertc.database.windows.net"
-$MaintDatabase = "dbMaintenance"
+# Select Server and Databases to monitor 
 $SqlQuery = "SELECT  distinct top 75 a.servername FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
 
 
 # Execute the inventory resluts query and store the results in an array
-$Rows = Invoke-Sqlcmd -ServerInstance $DBMaintServer -Database $Database -Query $SqlQuery -AccessToken $accessToken
-
-
+$Rows = Invoke-Sqlcmd -ServerInstance $DBMaintServer -Database $MaintDatabase -Query $SqlQuery -AccessToken $accessToken
 
 
 $subsWithSqlServers = foreach ($sub in Get-AzSubscription) 

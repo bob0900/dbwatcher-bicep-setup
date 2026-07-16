@@ -42,10 +42,7 @@ foreach ($server in $sqlServers) {
         # List SQL Databases in this server
         $ServerInstancename = $server.FullyQualifiedDomainName
 
-#$LogicalSQLDB = Get-AzSqlDatabase -ResourceGroupName $server.ResourceGroupName -ServerName $server.ServerName |
-#        Where-Object { $_.DatabaseName -ne "master" } |
-#            Select-Object *, 
-#                  @{Name="DeploymentModel"; Expression={if($_.ElasticPoolName){"Elastic Pool ($($_.ElasticPoolName))"}else{"Single Database"}} 
+
 
 
 Write-Host "--- Processing Server: $($server.ServerName) ---" -ForegroundColor Cyan

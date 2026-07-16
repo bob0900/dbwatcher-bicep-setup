@@ -53,7 +53,7 @@ $sqldbtargets = $sqldbtargets + "       ""sqlTargets"": { ""value"": [  "
 # Define inventory database details 
 $DBMaintServer   = "sqldb-maintenance-robertc.database.windows.net"
 $MaintDatabase = "dbMaintenance"
-$SqlQuery = "SELECT  distinct top 75 a.subscriptionId, a.servername, a.ResourceGroupName, a.DBNAME FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
+$SqlQuery = "SELECT  distinct top 75 a.subscriptionId, a.servername, a.ResourceGroupName, a.DBNAME FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' and DBWatcherName = '$dbwatchername' "
 
 # Execute the inventory resluts query and store the results in an array
 $Rows = Invoke-Sqlcmd -ServerInstance $DBMaintServer -Database $MaintDatabase -Query $SqlQuery -AccessToken $accessToken
@@ -103,8 +103,6 @@ Invoke-Sqlcmd -ServerInstance $($DBMaintServer) -Database $($MaintDatabase) -Que
                             }
 
                         }
-
-
    
 if ($row.Count -ne 0) {
     $sqldbtargets = $sqldbtargets + "                 ] } } } "        
@@ -116,10 +114,5 @@ $sqldbtargets | Out-File -FilePath "C:\bicep\dbwatcher.parameters.json"
 Write-Host $sqldbtargets
 
 
-#Onboard the servers to Database Watcher
-
-#Invoke-Command -ComputerName localhost -FilePath "C:\Path\To\YourScript.ps1" -ResourceGroupName "rg-database-watcher"
-
-
-
-
+# Onboard the servers to Database Watcher using deployment script
+#pwsh -File "C:\bicep\deploy-dbwatcher.ps1"  -ResourceGroupName "rg-database-watcher"
