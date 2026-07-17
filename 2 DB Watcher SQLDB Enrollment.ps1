@@ -74,13 +74,16 @@ if ($Rows.Count -ne 0)       {
     $sqldbtargets = $sqldbtargets + " 
                             {""subscriptionId"": ""$($row.SubscriptionID)"",                                 
                             ""resourceGroupName"": ""$($row.ResourceGroupName)"",
-                            ""sqlServerName"": ""$($row.ServerName)"",
+                            ""sqlServerName"": ""$((($row.ServerName) -split "\.")[0])"",
                             ""databaseName"": ""$($row.DBNAME)"",
                             ""authenticationType"": ""Aad"",
                             ""enablePrivateLink"": true,
                             ""readIntent"": false }"
 
-       
+
+     
+
+
 $counter++
 Write-Host $counter
 if ($counter -ne $totalrows) {
