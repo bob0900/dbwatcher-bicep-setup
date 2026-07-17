@@ -168,7 +168,7 @@ var uniqueSqlServersArray = map(items(uniqueSqlServerMap), item => item.value)
 // Resources - Database Watcher
 // ============================================================================
 
-resource databaseWatcher 'Microsoft.DatabaseWatcher/watchers@2024-10-01-preview' = {
+resource databaseWatcher 'Microsoft.DatabaseWatcher/watchers@2025-01-02'' = {
   name: watcherName
   location: location
   identity: {
@@ -192,7 +192,7 @@ resource databaseWatcher 'Microsoft.DatabaseWatcher/watchers@2024-10-01-preview'
 // ============================================================================
 
 // SQL Database Private Links (one per unique SQL Server, not per database)
-resource sqlDbPrivateLinks 'Microsoft.DatabaseWatcher/watchers/sharedPrivateLinkResources@2024-10-01-preview' = [for server in uniqueSqlServersArray: {
+resource sqlDbPrivateLinks 'Microsoft.DatabaseWatcher/watchers/sharedPrivateLinkResources@2025-01-02'' = [for server in uniqueSqlServersArray: {
   parent: databaseWatcher
   name: 'sqldb-${server.serverName}'
   properties: {
@@ -203,7 +203,7 @@ resource sqlDbPrivateLinks 'Microsoft.DatabaseWatcher/watchers/sharedPrivateLink
 }]
 
 // SQL Managed Instance Private Links (always required - MI doesn't support public access)
-resource sqlMiPrivateLinks 'Microsoft.DatabaseWatcher/watchers/sharedPrivateLinkResources@2024-10-01-preview' = [for (target, i) in sqlManagedInstanceTargets: {
+resource sqlMiPrivateLinks 'Microsoft.DatabaseWatcher/watchers/sharedPrivateLinkResources@2025-01-02'' = [for (target, i) in sqlManagedInstanceTargets: {
   parent: databaseWatcher
   name: 'sqlmi-${target.managedInstanceName}'
   properties: {
@@ -215,7 +215,7 @@ resource sqlMiPrivateLinks 'Microsoft.DatabaseWatcher/watchers/sharedPrivateLink
 }]
 
 // Kusto Cluster Private Link (if enabled)
-resource kustoPrivateLink 'Microsoft.DatabaseWatcher/watchers/sharedPrivateLinkResources@2024-10-01-preview' = if (enableKustoPrivateLink) {
+resource kustoPrivateLink 'Microsoft.DatabaseWatcher/watchers/sharedPrivateLinkResources@2025-01-02'' = if (enableKustoPrivateLink) {
   parent: databaseWatcher
   name: 'kusto-cluster'
   properties: {
@@ -230,7 +230,7 @@ resource kustoPrivateLink 'Microsoft.DatabaseWatcher/watchers/sharedPrivateLinkR
 // Resources - SQL Database Targets
 // ============================================================================
 
-resource sqlDatabaseTargets 'Microsoft.DatabaseWatcher/watchers/targets@2024-10-01-preview' = [for (target, i) in sqlTargets: {
+resource sqlDatabaseTargets 'Microsoft.DatabaseWatcher/watchers/targets@2025-01-02'' = [for (target, i) in sqlTargets: {
   parent: databaseWatcher
   name: guid(watcherName, target.sqlServerName, target.databaseName)
   properties: {
@@ -251,7 +251,7 @@ resource sqlDatabaseTargets 'Microsoft.DatabaseWatcher/watchers/targets@2024-10-
 // Resources - SQL Managed Instance Targets
 // ============================================================================
 
-resource sqlMiTargets 'Microsoft.DatabaseWatcher/watchers/targets@2024-10-01-preview' = [for (target, i) in sqlManagedInstanceTargets: {
+resource sqlMiTargets 'Microsoft.DatabaseWatcher/watchers/targets@2025-01-02'' = [for (target, i) in sqlManagedInstanceTargets: {
   parent: databaseWatcher
   name: guid(watcherName, target.managedInstanceName)
   properties: {
