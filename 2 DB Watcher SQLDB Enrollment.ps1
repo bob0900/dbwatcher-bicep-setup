@@ -11,13 +11,6 @@
 
 # Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
-
-# Set your key vault name and secret names
-# $keyVaultName = "KV-Purview-Robertc"
-# $usernameSecretName = "SecretUserName"
-# $passwordSecretName = "dbPassword"
-# Get the username and password secrets
-
 #Allow remote PowerShell scripts to run
 Enable-PSRemoting -Force
 
@@ -27,7 +20,7 @@ Enable-PSRemoting -Force
     $region = "eastus"
     $resourcegroupname = "SQL_Managed_Instance"
     $kustoclustername = "sqldb-watcher"
-    $kustodatabasename = "dbwatcher"
+    $kustodatabasename = "sqldb-watcher-data-store"
 
 # Get the access token for Azure SQL MI
 $accessToken = (Get-AzAccessToken -ResourceUrl "https://database.windows.net").Token
@@ -81,8 +74,7 @@ if ($Rows.Count -ne 0)       {
                             ""readIntent"": false }"
 
 
-     
-
+  
 
 $counter++
 Write-Host $counter

@@ -6,14 +6,11 @@
 #Install-Module -Name SqlServer -RequiredVersion 22.4.5.1 -Force -AllowClobber
 #Import-Module SqlServer -RequiredVersion 22.4.5.1 
 
-
 #Connect-AzAccount -UseDeviceAuthentication
-
+#Define inventory database details 
 $DBWatcherName = "DBWatcher-Name-Goes-Here"
-# Define inventory database details 
-$DBMaintServer   = "sqldb-maintenance-robertc.database.windows.net"
+$DBMaintServer   = "sqldb-NameGoesHere.database.windows.net"
 $MaintDatabase = "dbMaintenance"
-
 
 $query = "IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = '$($DBWatcherName)')
 BEGIN CREATE LOGIN [$($DBWatcherName)] FROM EXTERNAL PROVIDER; END
@@ -21,12 +18,11 @@ ALTER SERVER ROLE ##MS_ServerPerformanceStateReader## ADD MEMBER [$($DBWatcherNa
 ALTER SERVER ROLE ##MS_DefinitionReader## ADD MEMBER [$($DBWatcherName)];
 ALTER SERVER ROLE ##MS_DatabaseConnector## ADD MEMBER [$($DBWatcherName)];"
 
-
 # Get the access token for Azure SQL MI
 $accessToken = (Get-AzAccessToken -ResourceUrl "https://database.windows.net").Token
 
 # Select Server and Databases to monitor 
-$SqlQuery = "SELECT  distinct top 75 a.servername FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
+$SqlQuery = "SELECT  distinct top 75 a.servername, a.DBName FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
 
 
 # Execute the inventory resluts query and store the results in an array
@@ -38,30 +34,33 @@ $subsWithSqlServers = foreach ($sub in Get-AzSubscription)
 
 Set-AzContext -SubscriptionId $sub.Id | Out-Null
 
-
 foreach ($Row in $Rows) 
 {
-        # Access individual columns using dot-property notation
-        $SQLDBName = $Row.ServerName
-    
-    
-        Write-Host ""
 
-                
-        #Write-Host "Invoke-Sqlcmd -ServerInstance $($SQLDBName) -Database 'master' -Query $query -AccessToken $($accessToken)"
-        Invoke-Sqlcmd -ServerInstance $($SQLDBName) -Database 'master' -Query $query -AccessToken $($accessToken)
+# Access individual columns using dot-property notation such as $Row.xxxxx
+$SQLSrvName = $Row.ServerName
+$SQLDBName = $Row.DBName
+    
+Write-Host ""
+Write-Host "Server Name = $($SQLSrvName) and Database Name = $($SQLDBName) "
+
+
 
 #Update SQL Inventory table with DB-WatcherName
-$SQLUpdate = "UPDATE dbo.Targets
-                   SET dbwatchername = '$DBWatcherName'
-              WHERE servername = '$($Row.servername)'  AND ServiceTier != 'DataWarehouse' "
+$SQLUpdate = "UPDATE dbo.Targets SET dbwatchername = '$DBWatcherName'
+              WHERE servername = '$($SQLSrvName)' AND DBName = '$($SQLDBName)'  AND ServiceTier != 'DataWarehouse' "
 
+
+Write-Host "$query"
+#Add Permissions to SQL DB Server"      
+Invoke-Sqlcmd -ServerInstance $($SQLSrvName) -Database 'master' -Query $query -AccessToken $($accessToken)
+Write-Host ""
 Write-Host  $SQLUpdate
+
 
 Invoke-Sqlcmd -ServerInstance $($DBMaintServer) -Database $($MaintDatabase) -Query $SQLUpdate -AccessToken $($accessToken)
 
         
-
 }
               
         

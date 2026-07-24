@@ -13,9 +13,8 @@
 
 
 #Connect-AzAccount -devicecode
-
-$DBWatcherName = "Must BE UPDATED"
-$MainServerName = "sqldb-maintenance-robertc.database.windows.net"
+$DBWatcherName = "DBWatcher-Name-Here"
+$MainServerName = "sqldb-NameHere.database.windows.net"
 $MaintDBName = "dbMaintenance"
 $DBName = ""
 $ServiceTier = ""
@@ -24,6 +23,13 @@ $DeploymentModel = ""
 $AdminName = ""
 $ResourceGroupName = ""
 $LogicalSQLDB = ""
+
+$query = "IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = '$($DBWatcherName)')
+BEGIN CREATE LOGIN [$($DBWatcherName)] FROM EXTERNAL PROVIDER; END
+ALTER SERVER ROLE ##MS_ServerPerformanceStateReader## ADD MEMBER [$($DBWatcherName)];
+ALTER SERVER ROLE ##MS_DefinitionReader## ADD MEMBER [$($DBWatcherName)];
+ALTER SERVER ROLE ##MS_DatabaseConnector## ADD MEMBER [$($DBWatcherName)];"
+
 
 
 #Get the access token for Azure SQL DB
@@ -44,13 +50,12 @@ foreach ($server in $sqlServers) {
 
 
 
-
-Write-Host "--- Processing Server: $($server.ServerName) ---" -ForegroundColor Cyan
+#Write-Host "--- Processing Server: $($server.ServerName) ---" -ForegroundColor Cyan
 
 $SQLDBs =  Get-AzSqlDatabase -ResourceGroupName $server.ResourceGroupName -ServerName $server.ServerName -ErrorAction SilentlyContinue |
-        Where-Object { $_.DatabaseName -ne "master" } |
+            Where-Object { $_.DatabaseName -ne "master" } |
            Select-Object *, 
-                @{Name="DeploymentModel"; Expression={if($_.ElasticPoolName){"Elastic Pool ($($_.ElasticPoolName))"}else{"Single Database"}}} -ErrorAction SilentlyContinue
+                    @{Name="DeploymentModel"; Expression={if($_.ElasticPoolName){"Elastic Pool ($($_.ElasticPoolName))"}else{"Single Database"}}} -ErrorAction SilentlyContinue
     
 
 foreach ($LogicalSQLDB in $SQLDBs)   {
@@ -65,16 +70,12 @@ foreach ($LogicalSQLDB in $SQLDBs)   {
         $SubscriptionName = $Sub.Name
         
 
-Write-Host "    Found Database: $($LogicalSQLDB.DatabaseName)" -ForegroundColor Green 
+#Write-Host "    Found Database: $($LogicalSQLDB.DatabaseName)" -ForegroundColor Green 
    
 #Provides the ability to filter by Resource Groups such as test and prod  
 if ($server.ResourceGroupName -like "**") 
                             {
-        $admin = Get-AzSqlServerActiveDirectoryAdministrator `
-                    -ResourceGroupName $server.ResourceGroupName `
-                   -ServerName $server.ServerName `
-                    -ErrorAction SilentlyContinue
-
+ 
 #Query used to insert target sqldb's to DBWatcher 
 
 $query = ""
@@ -94,12 +95,12 @@ $query = " IF NOT EXISTS (SELECT 1 FROM dbo.Targets WHERE servername = '$ServerI
 
        Invoke-Sqlcmd -ServerInstance $MainServerName -Database $MaintDBName -AccessToken $accessToken -Query $query
        Invoke-Sqlcmd -ServerInstance $MainServerName -Database $MaintDBName -AccessToken $accessToken -Query 'GO' 
-       Write-host ""
-       Write-host $query
+       #Write-host ""
+       #Write-host $query
        
        }
      }
    }  
   
-  }
+ }
  
