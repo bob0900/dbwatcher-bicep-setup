@@ -7,12 +7,13 @@ This repository contains a parameterized Bicep template for deploying **Azure Da
 - **Bicep Template** (`dbwatcher.bicep`) - Infrastructure as Code for Database Watcher
 - **Parameters File** (`dbwatcher.parameters.json`) - Configuration values
 - **PowerShell Deployment Script** (`deploy-dbwatcher.ps1`) - Automated deployment with validation
-- **Script to List All SQL-DB target servers** ('0 List Servers Only - SQLDB target Instances.ps1') - scope number of possible SQLDB Servers
-- **Script to List All SQL-MI target servers** ('0 List Servers Only - SQLMI target Instances.ps1') - scope number of possible SQLMI Servers
-- **Automate the adding of Permissions to all SQL-DB target servers** ('1 Permissions - Add DBwatcher-EntraID to SQLDB Instances.ps1') - executes SQL Script
-- **Automate the adding of Permissions to all SQL-MI target servers** ('1 Permissions - Add DBwatcher-EntraID to SQLMI Instances.ps1') - executes SQL Script
-- **Automated configuration file creation for all SQL-DB target servers** ('2 DB Watcher Configuration File for SQL DB Enrollment.ps1') - executes SQL Script
-- **Automated configuration file creation for all SQL-MI target servers** ('2 DB Watcher Configuration File for SQL MI Enrollment.ps1') - executes SQL Script
+- **SQL Script** ('0 - Create InventoryTable.sql') - Create Inventory Table to store all SQL DB and SQL MI deployment data
+- **Script to Inventory All SQL-DB target servers** ('0 List Servers Only - SQLDB target Instances.ps1') - Store and Inventory all SQLDB Servers within a Tenant
+- **Script to Inventory All SQL-MI target servers** ('0 List Servers Only - SQLMI target Instances.ps1') - Store and Inventory all SQLMI Servers within a Tenant
+- **Automate the adding of Permissions to all SQL-DB target servers** ('1 Permissions - Add DBwatcher-EntraID to SQLDB Instances.ps1') - Automates execution of SQL Script
+- **Automate the adding of Permissions to all SQL-MI target servers** ('1 Permissions - Add DBwatcher-EntraID to SQLMI Instances.ps1') - Automates execution of SQL Script
+- **Automated configuration file creation for all SQL-DB target servers** ('2 DB Watcher Configuration File for SQL DB Enrollment.ps1') - Automates creation of json template
+- **Automated configuration file creation for all SQL-MI target servers** ('2 DB Watcher Configuration File for SQL MI Enrollment.ps1') - Automates creation of json template
  
 
 ## 📦 Prerequisites
