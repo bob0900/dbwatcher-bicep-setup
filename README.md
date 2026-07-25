@@ -28,6 +28,7 @@ Before deploying, ensure you have the following resources already created:
 
 2. **Azure SQL Database** or **SQL Managed Instance**
    - One or more SQL databases or managed instances to monitor
+   - One SQL DB to store inventory table
    - Appropriate firewall rules configured
    - Make sure to grant required permissions on target server to DBWatcher login/EntraID principal
 
