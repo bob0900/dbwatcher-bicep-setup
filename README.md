@@ -8,8 +8,8 @@ This repository contains a parameterized Bicep template for deploying **Azure Da
 - **Parameters File** (`dbwatcher.parameters.json`) - Configuration values
 - **PowerShell Deployment Script** (`deploy-dbwatcher.ps1`) - Automated deployment with validation
 - **SQL Script** ('0 - Create InventoryTable.sql') - Create Inventory Table to store all SQL DB and SQL MI deployment data
-- **Script to Inventory All SQL-DB target servers** ('0 Inventory ALL SQLDB Target Instances.ps1') - Store and Inventory all SQLDB Servers within a Tenant
-- **Script to Inventory All SQL-MI target servers** ('0 Inventory ALL SQLMI Target Instances.ps1') - Store and Inventory all SQLMI Servers within a Tenant
+- **Script to Inventory All SQL-DB target Instances** ('0 Inventory ALL SQLDB Target Instances.ps1') - Store and Inventory all SQLDB Servers within a Tenant
+- **Script to Inventory All SQL-MI target Instances** ('0 Inventory ALL SQLMI Target Instances.ps1') - Store and Inventory all SQLMI Servers within a Tenant
 - **Automate the adding of Permissions to all SQL-DB target servers** ('1 Permissions - Add DBwatcher-EntraID to SQLDB Instances.ps1') - Automates execution of SQL Script
 - **Automate the adding of Permissions to all SQL-MI target servers** ('1 Permissions - Add DBwatcher-EntraID to SQLMI Instances.ps1') - Automates execution of SQL Script
 - **Automated configuration file creation for all SQL-DB target servers** ('2 DB Watcher Configuration File for SQL DB Enrollment.ps1') - Automates creation of json template
