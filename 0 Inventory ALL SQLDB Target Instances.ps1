@@ -14,7 +14,7 @@
 
 #Connect-AzAccount -devicecode
 $DBWatcherName = "DBWatcher-Name-Here"
-$MainServerName = "sqldb-NameHere.database.windows.net"
+$MaintServerName = "sqldb-NameHere.database.windows.net"
 $MaintDBName = "dbMaintenance"
 $DBName = ""
 $ServiceTier = ""
@@ -93,8 +93,8 @@ $query = " IF NOT EXISTS (SELECT 1 FROM dbo.Targets WHERE servername = '$ServerI
             END "
 
 
-       Invoke-Sqlcmd -ServerInstance $MainServerName -Database $MaintDBName -AccessToken $accessToken -Query $query
-       Invoke-Sqlcmd -ServerInstance $MainServerName -Database $MaintDBName -AccessToken $accessToken -Query 'GO' 
+       Invoke-Sqlcmd -ServerInstance $MaintServerName -Database $MaintDBName -AccessToken $accessToken -Query $query
+       Invoke-Sqlcmd -ServerInstance $MaintServerName -Database $MaintDBName -AccessToken $accessToken -Query 'GO' 
        #Write-host ""
        #Write-host $query
        
