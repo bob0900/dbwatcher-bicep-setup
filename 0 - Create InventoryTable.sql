@@ -1,3 +1,15 @@
+-- 1. Table to store JSON Enrollment Data
+CREATE TABLE Enrollment_Details (
+    EnrollmentID INT IDENTITY(1,1) PRIMARY KEY,
+    EnrollmentDate DATETIME DEFAULT GETDATE(),
+    ResourceGroupName varchar(125) NOT NULL,
+	DBWatchername varchar(125) NOT NULL,
+	DBWatcherlocation varchar(50) NOT NULL,
+	EnrollmentJSON JSON NOT NULL 
+);
+
+
+-- 2. Table to store Azure SQL Target Details 
 /****** Object:  Table [dbo].[Targets]    Script Date: 7/24/2026 10:55:06 AM ******/
 SET ANSI_NULLS ON
 GO
