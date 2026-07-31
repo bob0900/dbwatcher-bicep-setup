@@ -9,7 +9,7 @@
 #Connect-AzAccount -UseDeviceAuthentication
 #Define inventory database details 
 $DBWatcherName = "DBWatcher-Name-Goes-Here"
-$DBMaintServer   = "sqldb-NameGoesHere.database.windows.net"
+$DBMaintServer   = "sqldb-Name-Goes-Here.database.windows.net"
 $MaintDatabase = "dbMaintenance"
 
 $query = "IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = '$($DBWatcherName)')
@@ -22,20 +22,18 @@ ALTER SERVER ROLE ##MS_DatabaseConnector## ADD MEMBER [$($DBWatcherName)];"
 $accessToken = (Get-AzAccessToken -ResourceUrl "https://database.windows.net").Token
 
 # Select Server and Databases to monitor 
-$SqlQuery = "SELECT  distinct top 75 a.servername, a.DBName FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
+$SqlQuery = "SELECT  distinct top 75 a.SubscriptionID, a.servername, a.DBName FROM (select * from [dbo].[Targets] where ServiceTier not in ('DataWareHouse') ) a  WHERE a.AdminName Like '%' AND a.ResourceGroupName Like '%' "
 
 
 # Execute the inventory resluts query and store the results in an array
 $Rows = Invoke-Sqlcmd -ServerInstance $DBMaintServer -Database $MaintDatabase -Query $SqlQuery -AccessToken $accessToken
 
 
-$subsWithSqlServers = foreach ($sub in Get-AzSubscription) 
-{
-
-Set-AzContext -SubscriptionId $sub.Id | Out-Null
 
 foreach ($Row in $Rows) 
 {
+
+Set-AzContext -SubscriptionId $Row.SubscriptionID | Out-Null
 
 # Access individual columns using dot-property notation such as $Row.xxxxx
 $SQLSrvName = $Row.ServerName
@@ -64,6 +62,6 @@ Invoke-Sqlcmd -ServerInstance $($DBMaintServer) -Database $($MaintDatabase) -Que
 }
               
         
-}
+
 
     
